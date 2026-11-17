@@ -53,3 +53,19 @@ s1.display()
 s2.display()
         
         
+        
+        
+        
+class grandfather :
+    def land(self):
+        print("land")
+class father:
+    def house(self):
+         print("father has house")
+class son(father):
+    def car(self):
+        print("son has a car")
+s=son() 
+s.land()
+s.house()
+s.car()
