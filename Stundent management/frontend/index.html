@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #334155;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            background: #2563eb;
+            margin: 5px 3px;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+        }
+
+        .search-btn {
+            background: #0891b2;
+        }
+
+        .search-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-area input {
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+
+        #message {
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        @media(max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .search-area {
+                flex-direction: column;
+            }
+
+            .card {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Student Management System</h1>
+
+    <!-- Add Student -->
+    <div class="card">
+        <h2>Add Student</h2>
+
+        <div class="form-group">
+            <label>USN</label>
+            <input type="text" id="usn" placeholder="Enter USN">
+        </div>
+
+        <div class="form-group">
+            <label>Student Name</label>
+            <input type="text" id="name" placeholder="Enter student name">
+        </div>
+
+        <div class="form-group">
+            <label>Marks</label>
+            <input type="number" id="marks" placeholder="Enter marks" min="0" max="100" step="any">
+        </div>
+
+        <button onclick="addStudent()">Add Student</button>
+
+        <p id="message"></p>
+    </div>
+
+    <!-- Search Student -->
+    <div class="card">
+        <h2>Search Student</h2>
+
+        <div class="search-area">
+            <input type="text" id="searchUSN" placeholder="Enter USN to search">
+
+            <button class="search-btn" onclick="searchStudent()">
+                Search
+            </button>
+
+            <button onclick="viewStudents()">
+                View All
+            </button>
+        </div>
+    </div>
+
+    <!-- Student Records -->
+    <div class="card">
+        <h2>Student Records</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>USN</th>
+                    <th>Name</th>
+                    <th>Marks</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentTable">
+                <tr>
+                    <td colspan="4" class="empty">
+                        No students found!
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function saveStudents() {
+        localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    // Add Student
+    function addStudent() {
+
+        const usn = document.getElementById("usn").value.trim();
+        const name = document.getElementById("name").value.trim();
+        const marks = document.getElementById("marks").value;
+
+        if (!usn || !name || marks === "") {
+            showMessage("Please fill all fields!", "red");
+            return;
+        }
+
+        if (students.some(s => s.usn.toLowerCase() === usn.toLowerCase())) {
+            showMessage("USN already exists!", "red");
+            return;
+        }
+
+        const score = Number(marks);
+
+        if (!Number.isFinite(score) || score < 0 || score > 100) {
+            showMessage("Marks must be between 0 and 100!", "red");
+            return;
+        }
+
+        students.push({
+            usn: usn,
+            name: name,
+            marks: score
+        });
+
+        saveStudents();
+        viewStudents();
+
+        showMessage("Student added successfully!", "green");
+
+        document.getElementById("usn").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("marks").value = "";
+    }
+
+    // View Students
+    function viewStudents() {
+
+        const table = document.getElementById("studentTable");
+
+        table.innerHTML = "";
+
+        if (students.length === 0) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="4" class="empty">
+                        No students found!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        students.forEach(student => {
+
+            const row = document.createElement("tr");
+
+            [student.usn, student.name, student.marks].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            const action = document.createElement("td");
+            const button = document.createElement("button");
+
+            button.textContent = "Delete";
+            button.className = "delete-btn";
+            button.onclick = () => deleteStudent(student.usn);
+
+            action.appendChild(button);
+            row.appendChild(action);
+
+            table.appendChild(row);
+        });
+    }
+
+    // Search Student
+    function searchStudent() {
+
+        const usn = document.getElementById("searchUSN").value.trim();
+
+        if (!usn) {
+            showMessage("Enter USN to search!", "red");
+            return;
+        }
+
+        const student = students.find(
+            s => s.usn.toLowerCase() === usn.toLowerCase()
+        );
+
+        if (student) {
+            renderStudents([student]);
+            showMessage("Student found!", "green");
+        } else {
+            renderStudents([]);
+            showMessage("Student not found!", "red");
+        }
+    }
+
+    // Render Records
+    function renderStudents(records) {
+
+        const table = document.getElementById("studentTable");
+
+        table.innerHTML = "";
+
+        if (records.length === 0) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="4" class="empty">
+                        No students found!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        records.forEach(student => {
+
+            const row = document.createElement("tr");
+
+            [student.usn, student.name, student.marks].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            const action = document.createElement("td");
+            const button = document.createElement("button");
+
+            button.textContent = "Delete";
+            button.className = "delete-btn";
+            button.onclick = () => deleteStudent(student.usn);
+
+            action.appendChild(button);
+            row.appendChild(action);
+
+            table.appendChild(row);
+        });
+    }
+
+    // Delete Student
+    function deleteStudent(usn) {
+
+        students = students.filter(
+            student => student.usn !== usn
+        );
+
+        saveStudents();
+        viewStudents();
+
+        showMessage("Student deleted successfully!", "green");
+    }
+
+    // Display Messages
+    function showMessage(message, color) {
+
+        const element = document.getElementById("message");
+
+        element.textContent = message;
+        element.style.color = color;
+    }
+
+    // Load Existing Records
+    viewStudents();
+
+</script>
+
+</body>
+</html>

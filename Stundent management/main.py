@@ -1,6 +1,5 @@
-
-class Student:
-    def __init__(self, usn, name, marks):
+Student:
+    def init(self, usn, name, marks):
         self.usn = usn
         self.name = name
         self.marks = marks
@@ -9,31 +8,30 @@ class Student:
         print("USN:", self.usn)
         print("Name:", self.name)
         print("Marks:", self.marks)
-        print("=======================================")
-
+        print("-------------------")
 
 class StudentManagement:
-    def __init__(self):
+    def (self):
         self.students = []
 
     def add_student(self):
         usn = input("Enter USN: ")
 
         for student in self.students:
-            if student.usn == usn:
-                print("Student with this USN already exists!")
+             student.usn == usn:
+                print("USN already exists!")
                 return
 
-        name = input("Enter the name: ")
-        marks = float(input("Enter the marks: "))
+        name = input("Enter student name: ")
+        marks = float(input("Enter marks: "))
 
-        student = Student(usn, name, marks)
-        self.students.append(student)
+        new_student = (usn, name, marks)
+        self.students.append(new_student)
 
-        print("Student added successfully!")
+        print("Student  successfully!")
 
-    def display_students(self):
-        if not self.students:
+    def view_student(self):
+        if len(self.students) == 0:
             print("No students found!")
             return
 
@@ -45,6 +43,7 @@ class StudentManagement:
 
         for student in self.students:
             if student.usn == usn:
+                print("Student found!")
                 student.display()
                 return
 
@@ -56,19 +55,17 @@ class StudentManagement:
         for student in self.students:
             if student.usn == usn:
                 self.students.remove(student)
-                print("Student deleted successfully!")
+                print("Student deleted!")
                 return
 
         print("Student not found!")
 
-
-# Main program
-sm = StudentManagement()
+app = StudentManagement()
 
 while True:
-    print("\n===== STUDENT MANAGEMENT SYSTEM =====")
+    print("\n======= Student Management System =======")
     print("1. Add Student")
-    print("2. Display Students")
+    print("2. View Students")
     print("3. Search Student")
     print("4. Delete Student")
     print("5. Exit")
@@ -76,23 +73,20 @@ while True:
     choice = input("Enter your choice: ")
 
     if choice == "1":
-        sm.add_student()
+        app.add_student()
 
     elif choice == "2":
-        sm.display_students()
+        app.view_student()
 
     elif choice == "3":
-        sm.search_student()
+        app.search_student()
 
     elif choice == "4":
-        sm.delete_student()
+        app.delete_student()
 
     elif choice == "5":
-        print("Exiting Student Management System...")
+        print("Thank you for using the application!")
         break
 
     else:
         print("Invalid choice! Try again.")
-
-
-
